@@ -1,0 +1,62 @@
+Maven first project (completed successfully)
+
+https://www.youtube.com/watch?v=Z9G5stlXoyg&t=73s
+
+GIT URL: https://github.com/sreenathemail/java-project1.git
+
+setup tomcat server
+
+setup jenkins server
+sudo yum install git -y
+sudo apt update
+sudo yum install maven
+
+login junkins
+Dashboard￼> Manage Jenkins￼> Tools
+
+Maven installations > check "Install automatically" > add maven > name : maven > verion:maven3.9.9 > apply
+JDK > check "Install automatically" > name : jdk > apply
+
+Credentials : add tomcat login details
+Install plugins > install  
+Deploy to container
+Git server Plugin
+GitHub Integration Plugin
+Maven Integration plugin
+Pipeline
+Pipeline: GitHub Groovy Libraries
+
+
+
+Add task
+name : Description:hello world
+maven > ok
+Git > URL https://github.com/sreenathemail/java-project1.git
+Branch main
+
+build enviorment  (this will check the git repo every two seconds, if any changes make build will trigure automatically and deploy )
+
+Check "Poll SCM ?" : */2 * * * *
+
+Build:pom.xml
+Goal and options: clean install package
+
+ 
+
+post build action : Deploy war/ear to a container￼
+WAR/EAR files : **/*.war  (or "target/*.war")
+
+
+Containers
+credentials: tomcat/password (add)
+tomcat url : ip:8082
+
+apply save
+
+
+build now
+
+
+
+
+

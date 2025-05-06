@@ -1,0 +1,116 @@
+Maven first project : publish over ssh￼ (completed successfully)
+
+https://www.youtube.com/watch?v=Z9G5stlXoyg&t=73s
+
+GIT URL: https://github.com/sreenathemail/java-project1.git
+==========
+setup tomcat server
+==========
+setup jenkins server
+sudo yum install git -y
+sudo apt update
+sudo yum install maven
+
+login junkins
+Dashboard￼> Manage Jenkins￼> Tools
+
+Maven installations > check "Install automatically" > add maven > name : maven > verion:maven3.9.9 > apply
+JDK > check "Install automatically" > name : jdk > apply
+
+Credentials : add tomcat login details
+===old plugins===
+Install plugins > install  
+Deploy to container
+Git server Plugin
+GitHub Integration Plugin
+Maven Integration plugin
+Pipeline
+Pipeline: GitHub Groovy Libraries
+=======
+install new plugin : publish over ssh
+manage > configure > ssh settings > add ssh logins
+SSH Server 172.31.44.123
+hostname: 172.31.44.123
+username: ec2-user
+Check Use password authentication, or use a different key : password
+test
+apply ok
+=======
+ 
+Configure ansible server 172.31.44.123
+---------------------
+$ cat /etc/hosts 
+3.111.55.209 webserver
+mkdir project ;  cd project/
+----------------
+[ec2-user@ip-172-31-44-123 project]$ cat ansible.cfg
+[defaults]
+inventory = inventory
+
+
+[ec2-user@ip-172-31-44-123 project]$ cat first.yml
+---
+- name: copy files to destination
+  hosts: webserver 
+  become: true 
+  tasks:
+    - name: copy src.txt as dest.txt in the same dir 
+      copy:
+        src: /home/ec2-user/project/target/java-hello-world.war 
+        dest: /opt/tomcat/webapps/
+...
+
+
+[ec2-user@ip-172-31-44-123 project]$ cat inventory
+[webservers]
+webserver ansible_host=3.111.55.209 ansible_user=ec2-user 
+---------------
+[ec2-user@ip-172-31-44-123 project]$ cat inventory.ini
+[webserver]
+172.31.2.130 ansible_user=ec2-user ansible_ssh_private_key_file=/home/ec2-user/.ssh/key.pem
+
+ ansible --version
+ ansible all --list-hosts
+==============================
+
+Add task
+name : Description: hello world
+maven > ok
+Git > URL https://github.com/sreenathemail/java-project1.git
+Branch main
+
+build enviorment  (this will check the git repo every two seconds, if any changes make build will trigure automatically and deploy )
+
+Check "Poll SCM ?" : */2 * * * *
+
+Build:pom.xml
+Goal and options: clean install package
+
+ 
+
+post build action : Send build artifacts over SSH 
+Name : Select SSH IP 172.31.44.123
+Source files : target/java-hello-world.war
+Remote directory : //home/ec2-user/project/
+
+Add SSH server
+Name : Select SSH IP 172.31.44.123
+Source files :  leave blank
+Remote directory :  leave blank
+Exec command"
+
+cd /home/ec2-user/project/
+ansible-playbook  /home/ec2-user/project/first.yml
+
+
+
+apply >  save
+
+
+build now
+edit code and make sure automatic build/deploymnet is working 
+
+
+
+
+

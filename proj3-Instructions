@@ -1,0 +1,126 @@
+Maven first project : publish over ssh￼ (completed successfully)
+
+servers
+1 jenkins
+2 docker
+
+https://www.youtube.com/watch?v=Z9G5stlXoyg&t=73s
+
+GIT URL: https://github.com/sreenathemail/java-project1.git
+==========
+ 
+==========
+setup jenkins server
+
+sudo yum update -y
+sudo yum install git -y
+sudo yum install -y
+sudo yum install maven -y
+ 
+sudo yum update –y
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum upgrade
+sudo yum install java-17-amazon-corretto -y
+sudo yum install jenkins -y
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+
+login junkins
+Dashboard￼> Manage Jenkins￼> Tools
+
+Maven installations > check "Install automatically" > add maven > name : maven > verion:maven3.9.9 > apply
+JDK > check "Install automatically" > name : jdk > apply
+
+Credentials : add tomcat login details
+===old plugins===
+Install plugins > install  
+Deploy to container
+Git server Plugin
+GitHub Integration Plugin
+Maven Integration plugin
+Pipeline
+Pipeline: GitHub Groovy Libraries
+=======
+install new plugin : publish over ssh
+manage > configure > ssh settings > add ssh logins
+SSH Server 172.31.44.123
+hostname: 172.31.44.123
+username: ec2-user
+Check Use password authentication, or use a different key : password
+test
+apply ok
+=======
+ 
+Configure docker server 172.31.44.123
+ sudo yum update -y
+ sudo yum install docker -y
+sudo yum update -y
+ sudo systemctl start docker
+sudo systemctl enable docker
+docker --version
+sudo usermod -a -G docker $(whoami)
+ sudo usermod -a -G docker $USER
+ sudo chown $USER /var/run/docker.sock
+ docker images
+ docker ps
+  sudo mkdir -p /opt/docker
+ cd /opt/docker/
+  chown -R ec2-user:ec2-user /opt/docker/
+
+==============================
+
+Add task
+name : Description: hello world
+maven > ok
+Git > URL https://github.com/sreenathemail/java-project1.git
+Branch main
+
+build enviorment  (this will check the git repo every two seconds, if any changes make build will trigure automatically and deploy )
+
+Check "Poll SCM ?" : */2 * * * *
+
+Build:pom.xml
+Goal and options: clean install package
+
+ 
+
+post build action : Send build artifacts over SSH 
+Name : Select SSH IP 172.31.44.123
+Source files : target/java-hello-world.war
+Remove prefix : target
+Remote directory : //opt/docker
+
+
+Add SSH server
+Name : Select SSH IP 172.31.44.123
+Source files :  leave blank
+Remote directory :  leave blank
+Exec command"
+
+docker stop hello-world_demo
+docker ps -aq | xargs -r docker rm -fv
+docker images -q | xargs -r docker rmi -f
+
+Add SSH server
+Name : Select SSH IP 172.31.44.123
+Source files :  leave blank
+Remote directory :  leave blank
+Exec command"
+cd /opt/docker
+docker build -t hello-world_demo .
+docker run -d --name hello-world_demo -p 8090:8080 hello-world_demo
+
+
+
+apply >  save
+
+
+build now
+edit code and make sure automatic build/deploymnet is working 
+
+
+
+
+
