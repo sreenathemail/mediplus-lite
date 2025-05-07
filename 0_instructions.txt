@@ -1,0 +1,54 @@
+
+ servers
+1 jenkins
+2 docker
+ 
+
+
+
+plugin :   publish over ssh, git
+
+manage > configure > ssh settings > add ssh logins
+name SSH Server  
+hostname: ip
+username: ec2-user
+Check Use password authentication, or use a different key : password
+test
+apply ok
+freestyle
+git url: https://github.com/sreenathemail/mediplus-lite.git
+
+
+
+
+Add task freestyole
+name : Description: mediplus
+maven > ok
+Git > URL https://github.com/sreenathemail/mediplus-lite.git
+Branch main
+
+build enviorment  (this will check the git repo every two seconds, if any changes make build will trigure automatically and deploy )
+
+Check "Poll SCM ?" : */2 * * * *
+ 
+
+Checkmark Webhook
+(Go to github settings > add webhook > payload url http://jenkinsip:8080/github-webhook  > let me select individual events > select pull requests > save
+
+post build action : Send build artifacts over SSH 
+Name : Select SSH IP 172.31.44.123
+Source files : **
+Remove prefix : 
+Remote directory : mediplus-lite  (/home/ec2-user/mediplus-lite)
+
+
+Add SSH server
+Name : Select SSH server
+Source files :  **
+Remote directory :  leave blank
+Exec command"
+
+
+cd /home/ec2-user/mediplus-lite && docker stop mediplus-lite || true && docker rm -fv mediplus-lite || true && docker rmi mediplus-lite --force || true && docker build -t mediplus-lite . && docker run -d --name mediplus-lite -p 8081:80 mediplus-lite
+
+ 
